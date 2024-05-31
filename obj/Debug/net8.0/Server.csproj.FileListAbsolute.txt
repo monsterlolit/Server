@@ -28,3 +28,4 @@ F:\Projects\Server\obj\Debug\net8.0\refint\Server.dll
 F:\Projects\Server\obj\Debug\net8.0\Server.pdb
 F:\Projects\Server\obj\Debug\net8.0\Server.genruntimeconfig.cache
 F:\Projects\Server\obj\Debug\net8.0\ref\Server.dll
+F:\Projects\Server\obj\Debug\net8.0\Server.sourcelink.json
