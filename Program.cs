@@ -46,7 +46,7 @@ app.Run(async (context) =>
     else
     {
         response.ContentType = "text/html; charset=utf-8";
-        
+        await response.SendFileAsync("html/index.html");
     }
 });
 
