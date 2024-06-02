@@ -3,9 +3,9 @@ using System.Text.RegularExpressions;
 // начальные данные
 List<Person> users = new List<Person>
 {
-    new() { Id = Guid.NewGuid().ToString(), Name = "Tom", Age = 37 },
-    new() { Id = Guid.NewGuid().ToString(), Name = "Bob", Age = 41 },
-    new() { Id = Guid.NewGuid().ToString(), Name = "Sam", Age = 24 }
+    new() { Id = Guid.NewGuid().ToString(), Name = "Tom", Age = 37, GayOrNot = false},
+    new() { Id = Guid.NewGuid().ToString(), Name = "Bob", Age = 41, GayOrNot = true },
+    new() { Id = Guid.NewGuid().ToString(), Name = "Sam", Age = 24, GayOrNot = true }
 };
 
 var builder = WebApplication.CreateBuilder();
@@ -156,4 +156,5 @@ public class Person
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public int Age { get; set; }
+    public bool GayOrNot { get; set; }
 }
