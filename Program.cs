@@ -1,4 +1,3 @@
-
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using Azure;
@@ -7,8 +6,6 @@ using Microsoft.Extensions.FileSystemGlobbing.Internal.PatternContexts;
 using Server;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
-
-
 
 var builder = WebApplication.CreateBuilder();
 string connection = "Server=(localdb)\\mssqllocaldb;Database=BDSHOES2;Trusted_Connection=True;";
@@ -55,8 +52,6 @@ app.MapGet("/api/shoes/image/{id:int}",async (int id,Bd db) =>
     return Results.File(stream, mimeType);
 });
 
-
-
 app.MapGet("/api/shoes/{id:int}",async (int id, Bd db) =>
 {
     shoes? shoe = await db.s2.FirstOrDefaultAsync(p => p.Id == id);
@@ -66,8 +61,6 @@ app.MapGet("/api/shoes/{id:int}",async (int id, Bd db) =>
 
     return Results.Json(shoe);
 });
-
-
 
 app.Run();
 
