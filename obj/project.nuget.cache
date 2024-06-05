@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ejW4+NbuO+p1bhA4UDtoNi0rX7QB4y4zGWcCanRV7xStWAc4bE/H5WS9DWmdEE/pbheHxf+wCNMTXbNqtZQZmQ==",
+  "dgSpecHash": "UPqo//49ax2++TteXbZnAAgyIIM0z+2kWOKX9veBEOyIc0+5x/8AR6ygKjmtdQPQtTUaoLE39NR2Uj/NcXH8XA==",
   "success": true,
   "projectFilePath": "F:\\Projects\\Server\\Server.csproj",
   "expectedPackageFiles": [
@@ -46,6 +46,7 @@
     "C:\\Users\\Влад\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\Влад\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\Влад\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\Влад\\.nuget\\packages\\sixlabors.imagesharp\\3.1.4\\sixlabors.imagesharp.3.1.4.nupkg.sha512",
     "C:\\Users\\Влад\\.nuget\\packages\\system.clientmodel\\1.0.0\\system.clientmodel.1.0.0.nupkg.sha512",
     "C:\\Users\\Влад\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\Влад\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",
