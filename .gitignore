@@ -1,1 +1,11 @@
-.vs
+.vs/
+**/packages/
+**/nuget.exe
+nuget.config
+**/$tf/
+*.nupkg
+*.snupkg
+**/project.assets.json
+**/project.lock.json
+**/*.paket.cache
+**/paket-files/
