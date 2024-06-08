@@ -2,6 +2,8 @@ using System.Drawing.Imaging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -15,32 +17,25 @@ string connection = "Server=(localdb)\\mssqllocaldb;Database=DBSHOES;Trusted_Con
 builder.Services.AddDbContext<DB>(options => options.UseSqlServer(connection));
 builder.Services.AddCors();
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidIssuer = AuthOptions.ISSUER,
-        ValidateAudience = true,
-        ValidAudience = AuthOptions.AUDIENCE,
-        ValidateLifetime = true,
-        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-        ValidateIssuerSigningKey = true,
-    };
+    options.LoginPath = "/login";
+    options.AccessDeniedPath = "/accessdenied";
 });
+
 var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseCors(builder => builder.AllowAnyOrigin());
 app.UseAuthentication();
 app.UseAuthorization();
-var people = new List<Person>
-{ 
-    new Person("mail@mail.ru", "1"),
-    new Person("mail2@mail.ru", "2")
-};
+
+
+
 ///test
 ///prod
+
+
 
 app.MapGet("/api/shoes/txt", async (context) =>
 { 
@@ -54,28 +49,6 @@ app.MapGet("/api/shoes/xlsx", async (context) =>
     context.Response.Headers.ContentDisposition = "attachment; filename=my_xlsx.xlsx";
     await context.Response.SendFileAsync("F:\\Projects\\Server\\pic\\hello2.xlsx");
 });
-
-app.MapPost("/login", (Person login) =>
-{
-    Person? person = people.FirstOrDefault(p => p.Email == login.Email && p.Password == login.Password);
-    if(person is null) 
-        return Results.Unauthorized();
-    var claims = new List<Claim> { new Claim(ClaimTypes.Name, person.Email) };
-    var jwt = new JwtSecurityToken(
-        issuer: AuthOptions.ISSUER,
-        audience: AuthOptions.AUDIENCE,
-        claims: claims,
-        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(2)),
-        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-    var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-    var response = new
-    {
-        access_token = encodedJwt,
-        username = person.Email
-    };
-    return Results.Json(response);
-});
-app.MapGet("/data", [Authorize] () => new { message = "Hello World!" });
 
 app.MapGet("/api/shoes", async (DB db, string? brand) => 
 {
@@ -154,6 +127,50 @@ app.MapPost("/api/shoes", async (Shoes shoe, DB db) =>
     return shoe;
 });
 
+app.MapPost("/login", async (string? returnUrl, HttpContext context, DB db, Users dataLogin) =>
+{
+    if (dataLogin.Password == null || dataLogin.Login == null)
+    {
+        return Results.BadRequest("где пароль!?");
+    }
+    string login = dataLogin.Login;
+    string password = dataLogin.Password;
+
+    Users? user = db.Users.FirstOrDefault(p => p.Login == login && p.Password == password);
+    if (user is null) return Results.Unauthorized();
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
+        new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Roles.Name)
+    };
+    var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+    await context.SignInAsync(claimsPrincipal);
+    return Results.Redirect(returnUrl ?? "/");
+});
+
+app.Map("/admin", [Authorize(Roles = "Admin")] () => "hello world!");
+
+app.Map("/", [Authorize(Roles = "Admin, User")] (HttpContext context) =>
+{
+    var login = context.User.FindFirst(ClaimsIdentity.DefaultNameClaimType);
+    var role = context.User.FindFirst(ClaimsIdentity.DefaultRoleClaimType);
+    return $"Name: {login?.Value}\nRole: {role?.Value}";
+});
+    
+
+app.MapGet("/logout", async (HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return "Данные удалены";
+});
+
+app.MapGet("/accessdenied", async (HttpContext context) =>
+{
+    context.Response.StatusCode = 403;
+    await context.Response.WriteAsync("Access Denied");
+});
+
 app.Run();
 
 public class AuthOptions
@@ -163,5 +180,5 @@ public class AuthOptions
     const string KEY = "mysupersecret_secretsecretsecretkey!123";
     public static SymmetricSecurityKey GetSymmetricSecurityKey() => new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
 }
-record class Person(string Email, string Password);
+
 
