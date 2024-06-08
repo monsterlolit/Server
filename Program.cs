@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Server;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder();
 string connection = "Server=(localdb)\\mssqllocaldb;Database=DBSHOES;Trusted_Connection=True;";
 builder.Services.AddDbContext<DB>(options => options.UseSqlServer(connection));
 builder.Services.AddCors();
+builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -26,26 +28,53 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuerSigningKey = true,
     };
 });
-builder.Services.AddAuthorization();
 var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseCors(builder => builder.AllowAnyOrigin());
 app.UseAuthentication();
 app.UseAuthorization();
+var people = new List<Person>
+{ 
+    new Person("mail@mail.ru", "1"),
+    new Person("mail2@mail.ru", "2")
+};
+///test
+///prod
 
-app.Map("/login/{username}", (string username) =>
+app.MapGet("/api/shoes/txt", async (context) =>
+{ 
+    var response = context.Response;
+    await context.Response.SendFileAsync("F:\\Projects\\Server\\pic\\hello.txt");
+});
+
+app.MapGet("/api/shoes/xlsx", async (context) =>
 {
-    var claims = new List<Claim> { new Claim(ClaimTypes.Name, username) };
+    
+    await context.Response.SendFileAsync("F:\\Projects\\Server\\pic\\hello2.xlsx");
+});
 
+app.MapPost("/login", (Person login) =>
+{
+    Person? person = people.FirstOrDefault(p => p.Email == login.Email && p.Password == login.Password);
+    if(person is null) 
+        return Results.Unauthorized();
+    var claims = new List<Claim> { new Claim(ClaimTypes.Name, person.Email) };
     var jwt = new JwtSecurityToken(
         issuer: AuthOptions.ISSUER,
         audience: AuthOptions.AUDIENCE,
         claims: claims,
         expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(2)),
         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-    return new JwtSecurityTokenHandler().WriteToken(jwt);
+    var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+    var response = new
+    {
+        acces_token = encodedJwt,
+        username = person.Email
+    };
+    return Results.Json(response);
 });
+app.MapGet("/data", [Authorize] () => new { message = "Hello World!" });
 
 app.MapGet("/api/shoes", async (DB db, string? brand) => 
 {
@@ -80,11 +109,11 @@ app.MapGet("/api/shoes", async (DB db, string? brand) =>
          Console.WriteLine($"Shoe with ImageID {id} not found.");
          return Results.NotFound(new { message = "Без тапков" });
      }
-     if (shoe.ImageID == null)
-     {
-         Console.WriteLine($"Image data for Shoe with ImageID {id} not found.");
-         return Results.NotFound(new { message = "Изображение не найдено" });
-     }
+     //if (shoe.ImageID == null)
+     //{
+     //    Console.WriteLine($"Image data for Shoe with ImageID {id} not found.");
+     //    return Results.NotFound(new { message = "Изображение не найдено" });
+     //}
      var mimeType = GetMimeTypeFromImage(shoe.Imagedb.Image);
      if (mimeType == null)
      {
@@ -133,4 +162,5 @@ public class AuthOptions
     const string KEY = "mysupersecret_secretsecretsecretkey!123";
     public static SymmetricSecurityKey GetSymmetricSecurityKey() => new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
 }
+record class Person(string Email, string Password);
 

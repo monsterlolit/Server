@@ -7,6 +7,7 @@ namespace Server
     {
         public DbSet<Shoes> Shoes { get; set; } = null!;
         public DbSet<Imagedb> ImageDBTable { get; set; } = null!;
+        public DbSet<Users> Users { get; set; } = null!;
         public DB(DbContextOptions<DB> options)
             : base(options)
         {
@@ -35,7 +36,16 @@ namespace Server
        .HasOne(s => s.Imagedb) 
        .WithMany(i => i.Shoes) 
        .HasForeignKey(s => s.ImageID);
+            modelBuilder.Entity<Users>().HasData(
+                    new Users { Id = 1, Login = "1", Password = "1" },
+                    new Users { Id = 2, Login = "2", Password = "2" }
+   
+    
+    
+     
+                    );
         }
+        
 
 
     }

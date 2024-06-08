@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "uSBqpH8a+IzpP+3IT5UprIDtY4CC0/VOlx3++nwOsAM=",
+  "Hash": "cAa04OAXElmiVheMaSw4IWvMIusKaWV4QKm5R++UELE=",
   "Source": "Server",
   "BasePath": "_content/Server",
   "Mode": "Default",
@@ -53,6 +53,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "F:\\Projects\\Server\\wwwroot\\index.html",
+      "SourceId": "Server",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\Projects\\Server\\wwwroot\\",
+      "BasePath": "_content/Server",
+      "RelativePath": "index.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\index.html"
     },
     {
       "Identity": "F:\\Projects\\Server\\wwwroot\\js\\site.js",
