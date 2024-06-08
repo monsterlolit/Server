@@ -50,7 +50,8 @@ app.MapGet("/api/shoes/txt", async (context) =>
 
 app.MapGet("/api/shoes/xlsx", async (context) =>
 {
-    
+    context.Response.Headers.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    context.Response.Headers.ContentDisposition = "attachment; filename=my_xlsx.xlsx";
     await context.Response.SendFileAsync("F:\\Projects\\Server\\pic\\hello2.xlsx");
 });
 
@@ -69,7 +70,7 @@ app.MapPost("/login", (Person login) =>
     var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
     var response = new
     {
-        acces_token = encodedJwt,
+        access_token = encodedJwt,
         username = person.Email
     };
     return Results.Json(response);
