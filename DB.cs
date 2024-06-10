@@ -8,7 +8,6 @@ namespace Server
         public DbSet<Shoes> Shoes { get; set; } = null!;
         public DbSet<Imagedb> ImageDBTable { get; set; } = null!;
         public DbSet<Users> Users { get; set; } = null!;
-        public DbSet<Roles> Roles { get; set; } = null!;
         public DB(DbContextOptions<DB> options)
             : base(options)
         {
@@ -23,36 +22,30 @@ namespace Server
                 new Shoes { Id = 3, Name = "ADIZERO SL RUNNING", Color = "White", Brand = "Adidas", Cost = 17500, Size = 42, ImageID = 3 },
                 new Shoes { Id = 4, Name = "AIR MAX TERRASCAPE PLUS", Color = "Black", Brand = "Nike", Cost = 16900, Size = 42, ImageID = 4 },
                 new Shoes { Id = 5, Name = "Air Zoom Superrep 3", Color = "White", Brand = "Nike", Cost = 31999, Size = 42, ImageID = 5 }
-     
+
                 );
-            
+
             modelBuilder.Entity<Imagedb>().HasData(
-                new Imagedb {ImageID = 1, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo1.jpg")},
-                new Imagedb {ImageID = 2, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo2.jpeg")},
-                new Imagedb {ImageID = 3, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo3.jpg")},
-                new Imagedb {ImageID = 4, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo4.jpg")},
-                new Imagedb {ImageID = 5, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo5.jpg")}
+                new Imagedb { ImageID = 1, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo1.jpg") },
+                new Imagedb { ImageID = 2, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo2.jpeg") },
+                new Imagedb { ImageID = 3, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo3.jpg") },
+                new Imagedb { ImageID = 4, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo4.jpg") },
+                new Imagedb { ImageID = 5, Image = File.ReadAllBytes("F:\\Projects\\Server\\pic\\photo5.jpg") }
             );
             modelBuilder.Entity<Shoes>()
-       .HasOne(s => s.Imagedb) 
-       .WithMany(i => i.Shoes) 
+       .HasOne(s => s.Imagedb)
+       .WithMany(i => i.Shoes)
        .HasForeignKey(s => s.ImageID);
             modelBuilder.Entity<Users>().HasData(
-                    new Users { Id = 1, Login = "1", Password = "1", IdRoles = 1 },
-                    new Users { Id = 2, Login = "2", Password = "2", IdRoles = 2 }
-     
+                    new Users { Id = 1, Login = "1", Password = "1", Role = "Admin" },
+                    new Users { Id = 2, Login = "2", Password = "2", Role = "User" }
+
                     );
-            modelBuilder.Entity<Roles>().HasData(
-               new Roles { IdRoles = 1, Name = "Admin"} ,
-               new Roles { IdRoles = 2, Name = "User"}
-                );
-            modelBuilder.Entity<Users>()
-.HasOne(s => s.Roles)
-.WithMany(i => i.Users)
-.HasForeignKey(s => s.IdRoles);
+
+
+
+
+
         }
-        
-
-
     }
 }

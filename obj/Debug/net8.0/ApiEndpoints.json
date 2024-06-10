@@ -120,14 +120,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "returnUrl",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
         "Name": "dataLogin",
         "Type": "Server.Users",
         "IsRequired": true
+      },
+      {
+        "Name": "returnUrl",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [

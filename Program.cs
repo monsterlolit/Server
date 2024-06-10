@@ -40,7 +40,7 @@ app.UseAuthorization();
 app.MapGet("/api/shoes/txt", async (context) =>
 { 
     var response = context.Response;
-    await context.Response.SendFileAsync("F:\\Projects\\Server\\pic\\hello.txt");
+    await context.Response.SendFileAsync("F:\\Projects\\Server\\pic\\photo1.webp");
 });
 
 app.MapGet("/api/shoes/xlsx", async (context) =>
@@ -75,7 +75,7 @@ app.MapGet("/api/shoes", async (DB db, string? brand) =>
      }
  }
 
- app.MapGet("/api/shoes/image/{id:int}",async (int id,DB db) =>
+ app.MapGet("/api/shoes/image/{id:int}", async (int id,DB db) =>
  {
      Shoes? shoe = await db.Shoes.Include(s => s.Imagedb).FirstOrDefaultAsync(p => p.ImageID == id);
      if (shoe == null)
@@ -83,11 +83,11 @@ app.MapGet("/api/shoes", async (DB db, string? brand) =>
          Console.WriteLine($"Shoe with ImageID {id} not found.");
          return Results.NotFound(new { message = "Без тапков" });
      }
-     //if (shoe.ImageID == null)
-     //{
-     //    Console.WriteLine($"Image data for Shoe with ImageID {id} not found.");
-     //    return Results.NotFound(new { message = "Изображение не найдено" });
-     //}
+     if (shoe.ImageID == null)
+     {
+         Console.WriteLine($"Image data for Shoe with ImageID {id} not found.");
+         return Results.NotFound(new { message = "Изображение не найдено" });
+     }
      var mimeType = GetMimeTypeFromImage(shoe.Imagedb.Image);
      if (mimeType == null)
      {
@@ -98,7 +98,7 @@ app.MapGet("/api/shoes", async (DB db, string? brand) =>
      return Results.File(stream, mimeType);
  });
 
-app.MapGet("/api/shoes/{id:int}",async (int id, DB db) =>
+app.MapGet("/api/shoes/{id:int}", async (int id, DB db) =>
 {
     Shoes? shoe = await db.Shoes.FirstOrDefaultAsync(p => p.Id == id);
 
@@ -120,19 +120,24 @@ app.MapDelete("/api/shoes/{id:int}", async (int id, DB db) =>
     return Results.Json(shoe);
 });
 
-app.MapPost("/api/shoes", async (Shoes shoe, DB db) =>
+app.MapPost("/api/shoes",  async (Shoes shoe, DB db) =>
 {
     await db.Shoes.AddAsync(shoe);
     await db.SaveChangesAsync();
     return shoe;
 });
 
-app.MapPost("/login", async (string? returnUrl, HttpContext context, DB db, Users dataLogin) =>
+app.MapGet("/accessdenied", async (HttpContext context) =>
 {
-    if (dataLogin.Password == null || dataLogin.Login == null)
-    {
-        return Results.BadRequest("где пароль!?");
-    }
+    context.Response.StatusCode = 403;
+    await context.Response.WriteAsync("Access Denied");
+});
+
+app.MapPost("/login", async(Users dataLogin, string? returnUrl, HttpContext context, DB db) =>
+{
+    if (dataLogin.Login == null || dataLogin.Password == null)
+        return Results.BadRequest("Что за бизнес?");
+
     string login = dataLogin.Login;
     string password = dataLogin.Password;
 
@@ -140,8 +145,8 @@ app.MapPost("/login", async (string? returnUrl, HttpContext context, DB db, User
     if (user is null) return Results.Unauthorized();
     var claims = new List<Claim>
     {
-        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
-        new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Roles.Name)
+        new(ClaimsIdentity.DefaultNameClaimType, user.Login),
+        new(ClaimsIdentity.DefaultRoleClaimType, user.Role)
     };
     var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
     var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -149,7 +154,7 @@ app.MapPost("/login", async (string? returnUrl, HttpContext context, DB db, User
     return Results.Redirect(returnUrl ?? "/");
 });
 
-app.Map("/admin", [Authorize(Roles = "Admin")] () => "hello world!");
+app.Map("/admin", [Authorize(Roles ="Admin")] () => "hello world!");
 
 app.Map("/", [Authorize(Roles = "Admin, User")] (HttpContext context) =>
 {
@@ -159,16 +164,10 @@ app.Map("/", [Authorize(Roles = "Admin, User")] (HttpContext context) =>
 });
     
 
-app.MapGet("/logout", async (HttpContext context) =>
+app.MapGet("/logout", [Authorize(Roles = "Admin, User")] async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return "Данные удалены";
-});
-
-app.MapGet("/accessdenied", async (HttpContext context) =>
-{
-    context.Response.StatusCode = 403;
-    await context.Response.WriteAsync("Access Denied");
 });
 
 app.Run();
