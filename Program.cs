@@ -37,6 +37,20 @@ app.UseAuthorization();
 
 
 
+app.MapGet("video/{segment}", async (HttpContext context, string segment) =>
+{
+    var videoPath = Path.Combine("F:\\Projects\\Server\\media\\",segment);
+    if (File.Exists(videoPath))
+    {
+        context.Response.ContentType = "video/MP2T";
+        await context.Response.SendFileAsync(videoPath);
+    }
+    else
+    { 
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+    }
+});
+
 app.MapGet("/api/shoes/txt", async (context) =>
 { 
     var response = context.Response;
